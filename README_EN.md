@@ -2,17 +2,26 @@
 
 [Nederlands](README.md)
 
-SolarEdge V2 is a custom Home Assistant integration for the SolarEdge Monitoring API V2. It reads solar production from the SolarEdge cloud. Use **Lifetime Energy** as a solar production source in the Home Assistant Energy dashboard. The integration is available in HACS as a custom repository.
+SolarEdge V2 is a custom Home Assistant integration for the SolarEdge Monitoring API V2. It reads solar production from the SolarEdge cloud. Use **Lifetime Energy** as a solar production source in the Home Assistant Energy dashboard.
 
-## 1. Install via HACS
+## 1. Installation
 
-1. Open **HACS** in Home Assistant.
-2. Select **⋮ → Custom repositories** in the top right.
-3. Add `https://github.com/Cindyst1/solaredge-v2-test` and select **Integration** as the category.
-4. Search HACS for **SolarEdge V2**, open the result, and select **Download**.
-5. Restart Home Assistant. Go to **Settings → Devices & services → Add integration** and search for **SolarEdge V2**.
+### Home Assistant 2026.11 and later: Marketplace
 
-See the [HACS guide to custom repositories](https://www.hacs.xyz/docs/faq/custom_repositories/).
+1. As an administrator, open **Settings → Marketplace** and accept the first-use warning to enable installations.
+2. Search for **SolarEdge V2**. If it does not appear, select **Add from link** and enter `https://github.com/Cindyst1/solaredge-v2-test`. Connect GitHub if prompted. If asked for a type, choose **Integration**.
+3. Open **SolarEdge V2**, select **Install**, and restart Home Assistant when prompted.
+
+See the [Marketplace guide](https://www.home-assistant.io/integrations/marketplace/#custom-repositories).
+
+### Home Assistant 2026.10 and earlier: HACS
+
+1. Open **HACS → ⋮ → Custom repositories**. Add `https://github.com/Cindyst1/solaredge-v2-test` as an **Integration**.
+2. Open **SolarEdge V2**, select **Download**, and restart Home Assistant.
+
+See the [HACS guide](https://www.hacs.xyz/docs/faq/custom_repositories/).
+
+After a first installation, go to **Settings → Devices & services → Add integration** and search for **SolarEdge V2**. Updates use the existing integration entry.
 
 ## 2. Connect your SolarEdge site
 

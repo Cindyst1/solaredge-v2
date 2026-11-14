@@ -2,17 +2,26 @@
 
 [English](README_EN.md)
 
-SolarEdge V2 is een aangepaste Home Assistant-integratie voor de SolarEdge Monitoring API V2. Ze leest zonneopbrengst uit de SolarEdge-cloud. De sensor **Lifetime Energy** kan als zonnebron in het Home Assistant Energiedashboard dienen. De integratie is beschikbaar via HACS als aangepaste repository.
+SolarEdge V2 is een aangepaste Home Assistant-integratie voor de SolarEdge Monitoring API V2. Ze leest zonneopbrengst uit de SolarEdge-cloud. De sensor **Lifetime Energy** kan als zonnebron in het Home Assistant Energiedashboard dienen.
 
-## 1. Installeer via HACS
+## 1. Installeren
 
-1. Open **HACS** in Home Assistant.
-2. Klik rechtsboven op **⋮ → Aangepaste repositories** (**Custom repositories**).
-3. Voeg `https://github.com/Cindyst1/solaredge-v2-test` toe en kies **Integratie** (**Integration**) als categorie.
-4. Zoek in HACS naar **SolarEdge V2**, open het resultaat en klik op **Downloaden**.
-5. Herstart Home Assistant. Open daarna **Instellingen → Apparaten en diensten → Integratie toevoegen** en zoek naar **SolarEdge V2**.
+### Home Assistant 2026.11 en nieuwer: Marketplace
 
-Zie ook de [HACS-handleiding voor aangepaste repositories](https://www.hacs.xyz/docs/faq/custom_repositories/).
+1. Ga als beheerder naar **Instellingen → Marketplace** en bevestig bij het eerste gebruik de melding om installaties toe te staan.
+2. Zoek naar **SolarEdge V2**. Staat de integratie er niet bij? Kies **Toevoegen via link** en voer `https://github.com/Cindyst1/solaredge-v2-test` in. Verbind GitHub als Marketplace daarom vraagt. Kies indien nodig **Integratie** als type.
+3. Open **SolarEdge V2**, kies **Installeren** en herstart Home Assistant wanneer daarom wordt gevraagd.
+
+Zie de [Marketplace-handleiding](https://www.home-assistant.io/integrations/marketplace/#custom-repositories).
+
+### Home Assistant 2026.10 en ouder: HACS
+
+1. Open **HACS → ⋮ → Aangepaste repositories**. Voeg `https://github.com/Cindyst1/solaredge-v2-test` toe als **Integratie**.
+2. Open **SolarEdge V2**, kies **Downloaden** en herstart Home Assistant.
+
+Zie de [HACS-handleiding](https://www.hacs.xyz/docs/faq/custom_repositories/).
+
+Ga na een eerste installatie naar **Instellingen → Apparaten en diensten → Integratie toevoegen** en zoek **SolarEdge V2**. Bij een update blijft de bestaande koppeling in gebruik.
 
 ## 2. Koppel je SolarEdge-installatie
 
