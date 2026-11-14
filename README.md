@@ -1,16 +1,16 @@
-# SolarEdge V2 Test
+# SolarEdge V2
 
 [English](README_EN.md)
 
-SolarEdge V2 Test is een aangepaste Home Assistant-integratie voor de SolarEdge Monitoring API V2. Ze leest zonneopbrengst uit de SolarEdge-cloud. De sensor **Lifetime Energy** kan als zonnebron in het Home Assistant Energiedashboard dienen. De integratie is beschikbaar via HACS als aangepaste repository.
+SolarEdge V2 is een aangepaste Home Assistant-integratie voor de SolarEdge Monitoring API V2. Ze leest zonneopbrengst uit de SolarEdge-cloud. De sensor **Lifetime Energy** kan als zonnebron in het Home Assistant Energiedashboard dienen. De integratie is beschikbaar via HACS als aangepaste repository.
 
 ## 1. Installeer via HACS
 
 1. Open **HACS** in Home Assistant.
 2. Klik rechtsboven op **⋮ → Aangepaste repositories** (**Custom repositories**).
 3. Voeg `https://github.com/Cindyst1/solaredge-v2-test` toe en kies **Integratie** (**Integration**) als categorie.
-4. Zoek in HACS naar **SolarEdge V2 Test**, open het resultaat en klik op **Downloaden**.
-5. Herstart Home Assistant. Open daarna **Instellingen → Apparaten en diensten → Integratie toevoegen** en zoek naar **SolarEdge V2 Test**.
+4. Zoek in HACS naar **SolarEdge V2**, open het resultaat en klik op **Downloaden**.
+5. Herstart Home Assistant. Open daarna **Instellingen → Apparaten en diensten → Integratie toevoegen** en zoek naar **SolarEdge V2**.
 
 Zie ook de [HACS-handleiding voor aangepaste repositories](https://www.hacs.xyz/docs/faq/custom_repositories/).
 
@@ -49,10 +49,12 @@ Een optionele sensor kan **Onbekend** tonen als de bron ontbreekt of SolarEdge t
 
 ## Energiedashboard
 
-1. Zoek **SolarEdge V2 Test Lifetime Energy** in **Instellingen → Apparaten en diensten → Entiteiten** en vergelijk de tellerstand met de levenslange opbrengst in SolarEdge.
+1. Zoek **Lifetime Energy** in **Instellingen → Apparaten en diensten → Entiteiten** en vergelijk de tellerstand met de levenslange opbrengst in SolarEdge.
 2. Open **Instellingen → Dashboards → Energie** en selecteer **Lifetime Energy** onder **Zonnepanelen**.
 3. Gebruik voor dezelfde zonnepanelen één productiebron per periode om dubbeltelling te voorkomen. Als je overstapt van een bestaande sensor en de oude opbrengst in het Energiedashboard wilt behouden, plan dan eerst de overgang van de statistieken. Deze integratie neemt de historie van de oude Home Assistant-sensor niet automatisch over. De levenslange tellerstand bevat wel de opbrengst sinds de opgegeven productiestart.
 
+Voor de kaart **Zelf verbruikte zonne-energie** heeft Home Assistant ook een teller voor **teruggeleverde energie in kWh** nodig, bijvoorbeeld van een P1-meter of een andere geschikte netmeter. Voeg die teller in het Energiedashboard toe bij **Elektriciteitsnet → Teruglevering aan het net**. De optie **Lokaal netvermogen** geeft vermogen in W en vervangt deze kWh-teller niet. Voor alleen de weergave van zonneproductie volstaat **Lifetime Energy**.
+
 ## Handmatig installeren
 
-Kopieer `custom_components/solaredge_v2_test` uit de [GitHub-release](https://github.com/Cindyst1/solaredge-v2-test/releases/latest) naar `/config/custom_components/`. Herstart Home Assistant, voeg **SolarEdge V2 Test** toe en volg de stappen onder **Koppel je SolarEdge-installatie**.
+Kopieer `custom_components/solaredge_v2_test` uit de [GitHub-release](https://github.com/Cindyst1/solaredge-v2-test/releases/latest) naar `/config/custom_components/`. Herstart Home Assistant, voeg **SolarEdge V2** toe en volg de stappen onder **Koppel je SolarEdge-installatie**.

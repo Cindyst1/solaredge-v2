@@ -117,7 +117,7 @@ class SolarEdgeSensor(CoordinatorEntity, SensorEntity):
         super().__init__(entry.runtime_data)
         self.key = key
         self.local_source = entry.options.get(LOCAL_POWER_SOURCES.get(key))
-        self._attr_name = f"SolarEdge V2 Test {name}"
+        self._attr_name = f"SolarEdge V2 {name}"
         self._attr_unique_id = f"{entry.data['site_id']}_v2_test_{key}"
         if key in ENERGY_SENSORS:
             self._attr_device_class = SensorDeviceClass.ENERGY

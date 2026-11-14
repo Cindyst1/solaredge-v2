@@ -133,7 +133,7 @@ class SolarEdgeV2TestFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     return self.async_abort(reason="cannot_connect")
                 if entry:
                     return self.async_update_reload_and_abort(entry, data=data)
-                return self.async_create_entry(title="SolarEdge V2 Test", data=data)
+                return self.async_create_entry(title="SolarEdge V2", data=data)
 
         return self.async_show_form(
             step_id="callback", errors=errors,

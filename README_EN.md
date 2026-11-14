@@ -1,16 +1,16 @@
-# SolarEdge V2 Test
+# SolarEdge V2
 
 [Nederlands](README.md)
 
-SolarEdge V2 Test is a custom Home Assistant integration for the SolarEdge Monitoring API V2. It reads solar production from the SolarEdge cloud. Use **Lifetime Energy** as a solar production source in the Home Assistant Energy dashboard. The integration is available in HACS as a custom repository.
+SolarEdge V2 is a custom Home Assistant integration for the SolarEdge Monitoring API V2. It reads solar production from the SolarEdge cloud. Use **Lifetime Energy** as a solar production source in the Home Assistant Energy dashboard. The integration is available in HACS as a custom repository.
 
 ## 1. Install via HACS
 
 1. Open **HACS** in Home Assistant.
 2. Select **⋮ → Custom repositories** in the top right.
 3. Add `https://github.com/Cindyst1/solaredge-v2-test` and select **Integration** as the category.
-4. Search HACS for **SolarEdge V2 Test**, open the result, and select **Download**.
-5. Restart Home Assistant. Go to **Settings → Devices & services → Add integration** and search for **SolarEdge V2 Test**.
+4. Search HACS for **SolarEdge V2**, open the result, and select **Download**.
+5. Restart Home Assistant. Go to **Settings → Devices & services → Add integration** and search for **SolarEdge V2**.
 
 See the [HACS guide to custom repositories](https://www.hacs.xyz/docs/faq/custom_repositories/).
 
@@ -49,10 +49,12 @@ Optional sensors can show **Unknown** when the source is missing or SolarEdge de
 
 ## Energy dashboard
 
-1. Find **SolarEdge V2 Test Lifetime Energy** under **Settings → Devices & services → Entities** and compare it with the lifetime production shown in SolarEdge.
+1. Find **Lifetime Energy** under **Settings → Devices & services → Entities** and compare it with the lifetime production shown in SolarEdge.
 2. Open **Settings → Dashboards → Energy** and select **Lifetime Energy** under **Solar panels**.
 3. Use one production source per period for the same panels to avoid double counting. If you are switching from an existing sensor and want to keep its production history in the Energy dashboard, plan the statistics migration first. This integration does not automatically migrate the old Home Assistant sensor's history. The lifetime counter includes production since the date you entered.
 
+The **Self-consumed solar energy** card also needs a **grid export energy counter in kWh**, for example from a P1 reader or another compatible grid meter. In the Energy dashboard, add that counter under **Electricity grid → Return to grid**. The **Local grid power** option provides power in W and does not replace the kWh counter. **Lifetime Energy** is sufficient for displaying solar production alone.
+
 ## Install manually
 
-Copy `custom_components/solaredge_v2_test` from the [GitHub release](https://github.com/Cindyst1/solaredge-v2-test/releases/latest) into `/config/custom_components/`. Restart Home Assistant, add **SolarEdge V2 Test**, and follow the steps under **Connect your SolarEdge site**.
+Copy `custom_components/solaredge_v2_test` from the [GitHub release](https://github.com/Cindyst1/solaredge-v2-test/releases/latest) into `/config/custom_components/`. Restart Home Assistant, add **SolarEdge V2**, and follow the steps under **Connect your SolarEdge site**.

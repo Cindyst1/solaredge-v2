@@ -98,7 +98,7 @@ async def async_setup_entry(hass, entry):
             raise UpdateFailed(str(err)) from None
 
     coordinator = DataUpdateCoordinator(
-        hass, LOGGER, config_entry=entry, name="SolarEdge V2 Test",
+        hass, LOGGER, config_entry=entry, name="SolarEdge V2",
         update_method=update, update_interval=timedelta(hours=2 if inventory_enabled else 1),
     )
     await coordinator.async_config_entry_first_refresh()
