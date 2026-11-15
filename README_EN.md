@@ -48,7 +48,7 @@ The integration requests access for one month and refreshes the access token dur
 | **Home Consumption Power Flow**, **Battery Power Flow**, **Battery Flow Direction** | Require power flows from Advanced Monitoring. SolarEdge can deny access to this data separately. |
 | **Meters**, **Inverters**, and registration status per device | Enable device discovery and authorize **DEVICE_DATA**. The inventory depends on what SolarEdge returns for your site. |
 | **Power (15-minute average)** per inverter | Requires an inverter that SolarEdge reports as active and access to its power data. Inventory access alone may be insufficient. |
-| **Sensors**, **Gateways**, **Batteries**, **Storage Level** | These entities have no data source in v0.6.3. |
+| **Sensors**, **Gateways**, **Batteries**, **Storage Level** | These entities have no data source in v0.6.4. |
 
 Optional sensors can show **Unknown** when the source is missing or SolarEdge denies access. The integration requests **Lifetime Energy** and site power hourly, or every two hours with device discovery enabled. It updates the other daily totals and inventory less often. The cloud reading timestamp may differ from the time Home Assistant updates the sensor.
 

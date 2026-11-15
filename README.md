@@ -48,7 +48,7 @@ De integratie vraagt toestemming voor één maand en vernieuwt het toegangstoken
 | **Home Consumption Power Flow**, **Battery Power Flow**, **Battery Flow Direction** | Vereisen energiestromen via Advanced Monitoring. SolarEdge kan toegang tot dit onderdeel afzonderlijk weigeren. |
 | **Meters**, **Inverters**, registratiestatus per apparaat | Schakel apparaatdetectie in en autoriseer ook **DEVICE_DATA**. De inventaris is afhankelijk van wat SolarEdge voor je site teruggeeft. |
 | **Power (15-minute average)** per omvormer | Vereist een omvormer die SolarEdge als actief rapporteert en toegang tot diens vermogensgegevens. Inventaristoegang alleen kan onvoldoende zijn. |
-| **Sensors**, **Gateways**, **Batteries**, **Storage Level** | Deze entiteiten hebben in v0.6.3 nog geen databron. |
+| **Sensors**, **Gateways**, **Batteries**, **Storage Level** | Deze entiteiten hebben in v0.6.4 nog geen databron. |
 
 Een optionele sensor kan **Onbekend** tonen als de bron ontbreekt of SolarEdge toegang weigert. **Lifetime Energy** en het installatievermogen worden elk uur opgevraagd, of elke twee uur met apparaatdetectie. De overige dagtotalen en inventaris worden minder vaak bijgewerkt. De tijd van de laatste cloudmeting kan afwijken van het moment waarop Home Assistant de sensor bijwerkt.
 
