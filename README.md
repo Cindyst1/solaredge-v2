@@ -2,7 +2,9 @@
 
 [English](README_EN.md)
 
-SolarEdge V2 is een aangepaste Home Assistant-integratie voor de SolarEdge Monitoring API V2. Ze leest zonneopbrengst uit de SolarEdge-cloud. De sensor **Lifetime Energy** kan als zonnebron in het Home Assistant Energiedashboard dienen.
+SolarEdge V2 is een community-integratie die de oude SolarEdge-koppeling vervangt. Ze leest zonnegegevens uit via de SolarEdge Monitoring API V2. Bij een eerste installatie wordt een aparte koppeling aangemaakt. Historie uit de oude koppeling wordt niet automatisch overgenomen.
+
+**Bevestigd in Home Assistant: Lifetime Energy.** Deze cumulatieve kWh-teller werkt met SITE_DATA als zonneproductiebron in het Energiedashboard. Dag-, maand- en jaaropbrengst en kwartiervermogen hangen af van de beschikbare cloudgegevens. Zie de sensortabel voor extra machtigingen en lokale bronnen.
 
 ## 1. Installeren
 
@@ -46,7 +48,7 @@ De integratie vraagt toestemming voor één maand en vernieuwt het toegangstoken
 | **Home Consumption Power Flow**, **Battery Power Flow**, **Battery Flow Direction** | Vereisen energiestromen via Advanced Monitoring. SolarEdge kan toegang tot dit onderdeel afzonderlijk weigeren. |
 | **Meters**, **Inverters**, registratiestatus per apparaat | Schakel apparaatdetectie in en autoriseer ook **DEVICE_DATA**. De inventaris is afhankelijk van wat SolarEdge voor je site teruggeeft. |
 | **Power (15-minute average)** per omvormer | Vereist een omvormer die SolarEdge als actief rapporteert en toegang tot diens vermogensgegevens. Inventaristoegang alleen kan onvoldoende zijn. |
-| **Sensors**, **Gateways**, **Batteries**, **Storage Level** | Deze entiteiten hebben in v0.6.1 nog geen databron. |
+| **Sensors**, **Gateways**, **Batteries**, **Storage Level** | Deze entiteiten hebben in v0.6.3 nog geen databron. |
 
 Een optionele sensor kan **Onbekend** tonen als de bron ontbreekt of SolarEdge toegang weigert. **Lifetime Energy** en het installatievermogen worden elk uur opgevraagd, of elke twee uur met apparaatdetectie. De overige dagtotalen en inventaris worden minder vaak bijgewerkt. De tijd van de laatste cloudmeting kan afwijken van het moment waarop Home Assistant de sensor bijwerkt.
 
