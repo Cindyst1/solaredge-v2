@@ -50,7 +50,7 @@ The integration requests access for one month and refreshes the access token dur
 | **Power (15-minute average)** per inverter | Requires an inverter that SolarEdge reports as active and access to its power data. Inventory access alone may be insufficient. |
 | **Sensors**, **Gateways**, **Batteries**, **Storage Level** | These entities have no data source in v0.6.4. |
 
-Optional sensors can show **Unknown** when the source is missing or SolarEdge denies access. The integration requests **Lifetime Energy** and site power hourly, or every two hours with device discovery enabled. It updates the other daily totals and inventory less often. The cloud reading timestamp may differ from the time Home Assistant updates the sensor.
+Optional sensors can show **Unknown** when the source is missing or SolarEdge denies access. The integration requests **Lifetime Energy** and site power every 15 minutes, including with device discovery enabled. It updates the other daily totals and inventory less often. The cloud reading timestamp may differ from the time Home Assistant updates the sensor.
 
 ### Enable device discovery or add a local source
 
