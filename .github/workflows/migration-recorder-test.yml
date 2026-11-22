@@ -1,0 +1,19 @@
+name: Migration Recorder integration test
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  recorder:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test against isolated Home Assistant
+        run: |
+          docker run --rm --network none --entrypoint /bin/sh \
+            ghcr.io/home-assistant/home-assistant:2026.11.1 -c 'python --version'
+          docker run --rm --entrypoint /bin/sh \
+            -v "$PWD:/work:ro" -w /work/tools \
+            ghcr.io/home-assistant/home-assistant:2026.11.1 \
+            -c 'pip install --quiet websocket-client && python test_live_recorder.py'
