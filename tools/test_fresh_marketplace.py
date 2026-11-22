@@ -64,7 +64,7 @@ async def phase(directory, mode):
             return
 
         assert not hass.config_entries.async_entries(DOMAIN)
-        energy = AsyncMock(return_value=100.0)
+        energy = AsyncMock(return_value=100_000.0)
         tokens = AsyncMock(return_value={"access_token": "synthetic", "refresh_token": "synthetic",
                                         "expires_at": (datetime.now(timezone.utc) + timedelta(hours=1)).timestamp()})
         # Only external SolarEdge API calls are mocked. HA config flow and sensor setup are real.
@@ -98,7 +98,7 @@ async def phase(directory, mode):
                 await asyncio.sleep(1)
             assert len(states) == 1
             sensor = states[0]
-            assert sensor.state == "100.0", sensor
+            assert float(sensor.state) == 100.0, sensor
             assert sensor.attributes["device_class"] == "energy"
             assert sensor.attributes["state_class"] == "total_increasing"
             assert sensor.attributes["unit_of_measurement"] == "kWh"
@@ -106,7 +106,7 @@ async def phase(directory, mode):
                        "config_entry_solar_forecast": []}], device_consumption=[])
             prefs = await call("energy/get_prefs")
             assert prefs["energy_sources"][0]["stat_energy_from"] == sensor.entity_id
-            energy.return_value = 102.0
+            energy.return_value = 102_000.0
             await entries[0].runtime_data.async_refresh()
             await hass.async_block_till_done()
             assert float(hass.states.get(sensor.entity_id).state) == 102.0
