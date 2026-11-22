@@ -13,6 +13,21 @@ from urllib.parse import urlsplit, urlunsplit
 HOUR_MS = 3_600_000
 
 
+def choose_hours(source, target, start=None, cutover=None):
+    """Propose the first target hour and the full available legacy prefix."""
+    if not source or not target:
+        raise ValueError("Both sensors need existing hourly statistics before a transition can be proposed.")
+    first_source = min(row["start"] for row in source)
+    first_target = min(row["start"] for row in target)
+    start_ms = int(start.timestamp() * 1000) if start else first_source + HOUR_MS
+    cutover_ms = int(cutover.timestamp() * 1000) if cutover else first_target
+    if start_ms >= cutover_ms:
+        raise ValueError("No earlier legacy prefix is available. The target may already contain migrated history.")
+    if cutover_ms != first_target:
+        raise ValueError("Cutover must be the first existing V2 statistics hour.")
+    return start_ms, cutover_ms
+
+
 def make_plan(source, target, start_ms, cutover_ms):
     """Start the imported baseline at zero and carry its production into V2 sums."""
     source = sorted(source, key=lambda row: row["start"])
@@ -41,12 +56,20 @@ def make_plan(source, target, start_ms, cutover_ms):
         raise ValueError("The target meter is lower than the legacy meter. Verify units and counters.")
     offset = -rows[0]["sum"]
     target_adjustment = rows[-1]["sum"] + offset + bridge - first["sum"]
+    overlap = next((row for row in source if row["start"] == cutover_ms), None)
+    bridge_verified = bool(
+        overlap and isinstance(overlap.get("state"), (int, float))
+        and isinstance(overlap.get("sum"), (int, float))
+        and abs(overlap["state"] - first["state"]) < 0.000001
+        and abs(overlap["sum"] - rows[-1]["sum"] - bridge) < 0.000001
+    )
     imported = [
         {"start": datetime.fromtimestamp(row["start"] / 1000, timezone.utc).isoformat(),
          "state": row["state"], "sum": row["sum"] + offset}
         for row in rows
     ]
-    return {"bridge_kwh": bridge, "offset": offset, "target_sum_adjustment": target_adjustment, "stats": imported,
+    return {"bridge_kwh": bridge, "bridge_verified": bridge_verified,
+            "offset": offset, "target_sum_adjustment": target_adjustment, "stats": imported,
             "legacy_production_kwh": rows[-1]["sum"] - rows[0]["sum"]}
 
 
@@ -96,15 +119,15 @@ def main():
     parser.add_argument("--url", required=True, help="Home Assistant base URL")
     parser.add_argument("--source", required=True, help="Legacy statistic ID")
     parser.add_argument("--target", required=True, help="V2 Lifetime Energy statistic ID")
-    parser.add_argument("--start", required=True, type=hour, help="First hour to migrate, including its production")
-    parser.add_argument("--cutover", required=True, type=hour, help="First existing V2 statistics hour")
+    parser.add_argument("--start", type=hour, help="Override the proposed first legacy hour to migrate")
+    parser.add_argument("--cutover", type=hour, help="Explicit first V2 statistics hour (normally detected)")
     parser.add_argument("--output", required=True, type=Path, help="New local audit/backup JSON file")
     parser.add_argument("--apply", action="store_true", help="Import after preview and confirmation")
     parser.add_argument("--confirmed-bridge-kwh", type=float,
                         help="Independently verified production in the first V2 hour")
     args = parser.parse_args()
-    if args.source == args.target or args.start >= args.cutover:
-        parser.error("Source and target must differ, and start must precede cutover.")
+    if args.source == args.target:
+        parser.error("Source and target must differ.")
     # Create a new audit file before any network write. Never overwrite a previous backup.
     with args.output.open("x", encoding="utf-8") as audit:
         token = os.environ.get("HA_TOKEN") or getpass.getpass("Home Assistant access token: ")
@@ -121,8 +144,16 @@ def main():
                     raise ValueError("Both statistics must exist, use kWh and have a cumulative sum.")
             original = connection.statistics(entities, start)
             target = original.get(args.target, [])
-            plan = make_plan(original.get(args.source, []), target,
-                             int(args.start.timestamp() * 1000), int(args.cutover.timestamp() * 1000))
+            try:
+                start_ms, cutover_ms = choose_hours(original.get(args.source, []), target, args.start, args.cutover)
+                cutover = datetime.fromtimestamp(cutover_ms / 1000, timezone.utc)
+                print(f"Proposed import start (UTC): {datetime.fromtimestamp(start_ms / 1000, timezone.utc).isoformat()}")
+                print(f"Proposed first V2 hour / cutover (UTC): {cutover.isoformat()}")
+                plan = make_plan(original.get(args.source, []), target, start_ms, cutover_ms)
+            except ValueError as error:
+                json.dump({"source": args.source, "target": args.target, "original": original,
+                           "status": "needs_review", "reason": str(error)}, audit, indent=2)
+                raise
             record = {"source": args.source, "target": args.target, "metadata": metadata,
                       "original": original, "plan": plan, "status": "preview"}
             json.dump(record, audit, indent=2)
@@ -130,20 +161,23 @@ def main():
             print(f"Prefix rows (including baseline): {len(plan['stats'])}")
             print(f"Legacy production: {plan['legacy_production_kwh']:.6f} kWh")
             print(f"First V2 hour bridge: {plan['bridge_kwh']:.6f} kWh")
+            print(f"Bridge verified against matching legacy hour: {plan['bridge_verified']}")
             print(f"V2 statistics sum offset (meter readings stay fixed): {plan['target_sum_adjustment']:.6f} kWh")
             print(f"Private local audit file: {args.output}")
             if not args.apply:
                 print("Preview complete. No statistics imported.")
                 return
             bridge = args.confirmed_bridge_kwh
-            if bridge is None or abs(bridge - plan["bridge_kwh"]) > 0.000001:
+            if bridge is not None and (not (-1e15 < bridge < 1e15) or abs(bridge - plan["bridge_kwh"]) > 0.000001):
+                raise ValueError("Confirmed bridge differs from the proposal.")
+            if bridge is None and not plan["bridge_verified"]:
                 raise ValueError("Supply the independently checked first V2 hour production with --confirmed-bridge-kwh.")
             if input("Type IMPORT to insert only the missing historical prefix: ") != "IMPORT":
                 raise ValueError("Import cancelled.")
             # Re-read before writing to catch another import or a changed historical prefix.
             current = connection.statistics(entities, start)
             for entity in entities:
-                cutoff = int(args.cutover.timestamp() * 1000) + HOUR_MS
+                cutoff = cutover_ms + HOUR_MS
                 old_boundary = [row for row in original[entity] if row["start"] < cutoff]
                 new_boundary = [row for row in current[entity] if row["start"] < cutoff]
                 if old_boundary != new_boundary:
@@ -152,10 +186,10 @@ def main():
             adjustment = plan["target_sum_adjustment"]
             if abs(adjustment) > 0.000001:
                 connection.call("recorder/adjust_sum_statistics", statistic_id=args.target,
-                                start_time=args.cutover.isoformat(), adjustment=adjustment,
+                                start_time=cutover.isoformat(), adjustment=adjustment,
                                 adjustment_unit_of_measurement="kWh")
                 for attempt in range(30):
-                    shifted = connection.statistics([args.target], args.cutover.isoformat())[args.target]
+                    shifted = connection.statistics([args.target], cutover.isoformat())[args.target]
                     if abs(shifted[0]["sum"] - target[0]["sum"] - adjustment) < 0.000001:
                         break
                     time.sleep(2)

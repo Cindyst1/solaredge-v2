@@ -46,7 +46,7 @@ async def main():
                            "unit_class": "energy", "mean_type": 0, "has_sum": True}, stats=stats(values))
                 await get_instance(hass).async_block_till_done()
 
-            await seed(source, [(0, 100, 10), (1, 102, 12), (2, 105, 15)])
+            await seed(source, [(0, 100, 10), (1, 102, 12), (2, 105, 15), (3, 106, 16)])
             await seed(target, [(3, 106, 0), (4, 108, 2)])
 
             async def snapshot():
@@ -59,8 +59,7 @@ async def main():
             async def run(name, *extra):
                 process = await asyncio.create_subprocess_exec(
                     sys.executable, script, "--url", "http://127.0.0.1:18123", "--source", source,
-                    "--target", target, "--start", "2025-01-01T01:00:00+00:00",
-                    "--cutover", "2025-01-01T03:00:00+00:00", "--output", f"{directory}/{name}.json",
+                    "--target", target, "--output", f"{directory}/{name}.json",
                     *extra, env={**os.environ, "HA_TOKEN": token}, stdin=asyncio.subprocess.PIPE,
                     stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
                 stdout, stderr = await process.communicate(b"IMPORT\n")
@@ -71,7 +70,7 @@ async def main():
             assert await snapshot() == before, "Preview wrote statistics"
             assert await run("wrong-bridge", "--apply", "--confirmed-bridge-kwh", "99") != 0
             assert await snapshot() == before, "Rejected bridge wrote statistics"
-            assert await run("apply", "--apply", "--confirmed-bridge-kwh", "1") == 0
+            assert await run("apply", "--apply") == 0
             after = await snapshot()
             assert after[source] == before[source], "Legacy rows changed"
             assert [row["state"] for row in after[target][-2:]] == [row["state"] for row in before[target]], "V2 readings changed"

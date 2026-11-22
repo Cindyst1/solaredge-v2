@@ -2,7 +2,7 @@
 
 import unittest
 
-from migrate_statistics import HOUR_MS, make_plan
+from migrate_statistics import HOUR_MS, make_plan, choose_hours
 
 
 def row(hour, state, total):
@@ -37,6 +37,27 @@ class MigrationPlanTests(unittest.TestCase):
     def test_missing_baseline_aborts(self):
         with self.assertRaises(ValueError):
             make_plan(self.source[1:], self.target, HOUR_MS, 3 * HOUR_MS)
+
+    def test_hours_detected_without_user_dates(self):
+        self.assertEqual(choose_hours(self.source, self.target), (HOUR_MS, 3 * HOUR_MS))
+
+    def test_already_migrated_target_cannot_choose_prefix(self):
+        with self.assertRaises(ValueError):
+            choose_hours(self.source, [row(0, 100, 0), *self.target])
+
+    def test_detected_gap_is_rejected(self):
+        source = [self.source[0], self.source[2]]
+        start, cutover = choose_hours(source, self.target)
+        with self.assertRaises(ValueError):
+            make_plan(source, self.target, start, cutover)
+
+    def test_matching_overlap_confirms_bridge(self):
+        plan = make_plan([*self.source, row(3, 106, 16)], self.target, HOUR_MS, 3 * HOUR_MS)
+        self.assertTrue(plan["bridge_verified"])
+
+    def test_different_overlap_does_not_confirm_bridge(self):
+        plan = make_plan([*self.source, row(3, 107, 17)], self.target, HOUR_MS, 3 * HOUR_MS)
+        self.assertFalse(plan["bridge_verified"])
 
 
 if __name__ == "__main__":
