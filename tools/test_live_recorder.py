@@ -23,7 +23,7 @@ async def main():
         try:
             await hass.async_start()
             user = await hass.auth.async_create_user("Synthetic test admin", group_ids=["system-admin"])
-            refresh = await hass.auth.async_create_refresh_token(user)
+            refresh = await hass.auth.async_create_refresh_token(user, client_id="http://localhost/")
             token = hass.auth.async_create_access_token(refresh)
             # Import the CLI only after HA has started. All calls run in executor threads.
             from migrate_statistics import Connection
