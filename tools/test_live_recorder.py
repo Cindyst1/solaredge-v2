@@ -11,13 +11,14 @@ import tempfile
 from homeassistant.core import HomeAssistant
 from homeassistant.setup import async_setup_component
 from homeassistant.loader import async_setup as setup_loader
-from homeassistant.components.recorder import get_instance
+from homeassistant.components.recorder import get_instance, async_initialize_recorder
 
 
 async def main():
     with tempfile.TemporaryDirectory() as directory:
         hass = HomeAssistant(directory)
         setup_loader(hass)
+        async_initialize_recorder(hass)
         config = {"http": {"server_host": "127.0.0.1", "server_port": 18123},
                   "recorder": {"db_url": f"sqlite:///{directory}/test.db"}}
         try:
