@@ -11,14 +11,14 @@ SolarEdge V2 is a community integration that replaces the legacy SolarEdge conne
 ### Home Assistant 2026.11 and later: Marketplace
 
 1. As an administrator, open **Settings → Marketplace** and accept the first-use warning to enable installations.
-2. Search for **SolarEdge V2**. If it does not appear, select **Add from link** and enter `https://github.com/Cindyst1/solaredge-v2-test`. Connect GitHub if prompted. If asked for a type, choose **Integration**.
+2. Search for **SolarEdge V2**. If it does not appear, select **Add from link** and enter `https://github.com/Cindyst1/solaredge-v2`. Connect GitHub if prompted. If asked for a type, choose **Integration**.
 3. Open **SolarEdge V2**, select **Install**, and restart Home Assistant when prompted.
 
 See the [Marketplace guide](https://www.home-assistant.io/integrations/marketplace/#custom-repositories).
 
 ### Home Assistant 2026.10 and earlier: HACS
 
-1. Open **HACS → ⋮ → Custom repositories**. Add `https://github.com/Cindyst1/solaredge-v2-test` as an **Integration**.
+1. Open **HACS → ⋮ → Custom repositories**. Add `https://github.com/Cindyst1/solaredge-v2` as an **Integration**.
 2. Open **SolarEdge V2**, select **Download**, and restart Home Assistant.
 
 See the [HACS guide](https://www.hacs.xyz/docs/faq/custom_repositories/).
@@ -48,7 +48,7 @@ The integration requests access for one month and refreshes the access token dur
 | **Home Consumption Power Flow**, **Battery Power Flow**, **Battery Flow Direction** | Require power flows from Advanced Monitoring. SolarEdge can deny access to this data separately. |
 | **Meters**, **Inverters**, and registration status per device | Enable device discovery and authorize **DEVICE_DATA**. The inventory depends on what SolarEdge returns for your site. |
 | **Power (15-minute average)** per inverter | Requires an inverter that SolarEdge reports as active and access to its power data. Inventory access alone may be insufficient. |
-| **Sensors**, **Gateways**, **Batteries**, **Storage Level** | These entities have no data source in v0.6.4. |
+| **Sensors**, **Gateways**, **Batteries**, **Storage Level** | These entities have no data source. |
 
 Optional sensors can show **Unknown** when the source is missing or SolarEdge denies access. The integration requests **Lifetime Energy** and site power every 15 minutes, including with device discovery enabled. It updates the other daily totals and inventory less often. The cloud reading timestamp may differ from the time Home Assistant updates the sensor.
 
@@ -66,6 +66,18 @@ Optional sensors can show **Unknown** when the source is missing or SolarEdge de
 
 The **Self-consumed solar energy** card also needs a **grid export energy counter in kWh**, for example from a P1 reader or another compatible grid meter. In the Energy dashboard, add that counter under **Electricity grid → Return to grid**. The **Local grid power** option provides power in W and does not replace the kWh counter. **Lifetime Energy** is sufficient for displaying solar production alone.
 
+## Bringing over history from the legacy integration
+
+The first Lifetime Energy value is a meter reading. Home Assistant does not reconstruct historical daily production from it. Renaming an entity does not automatically merge two existing histories either.
+
+1. Create a full Home Assistant backup including the Recorder database. Record the old and new entity IDs, the last valid legacy reading and the first valid V2 reading, including timezone and units.
+2. Compare both counters with SolarEdge. Establish the cutover time and check which intervals already exist. The difference between two lifetime counters alone cannot establish the production on individual days.
+3. A continuous V2 series requires a separate Recorder statistics migration. It must combine legacy long-term statistics up to the cutover with V2 statistics afterwards. The cumulative statistics sum must remain continuous at the boundary. Simply copying meter readings or importing an interval twice can create artificial production.
+4. Fill missing intervals only with verified SolarEdge production for those intervals. Check units, local day boundaries, daylight saving time and overlap with existing records.
+5. Compare daily, monthly and yearly totals before and after migration. Then use one continuous production source for these panels in the Energy dashboard. Keep the original data and backup until verification is complete.
+
+This project includes no automatic history importer or general migration script. The appropriate migration depends on the existing data and Home Assistant version. Migrating long-term Energy dashboard statistics does not automatically move every raw reading in the History view. Seek assistance with the Recorder migration when needed and work from a backup.
+
 ## Install manually
 
-Copy `custom_components/solaredge_v2_test` from the [GitHub release](https://github.com/Cindyst1/solaredge-v2-test/releases/latest) into `/config/custom_components/`. Restart Home Assistant, add **SolarEdge V2**, and follow the steps under **Connect your SolarEdge site**.
+Copy `custom_components/solaredge_v2_test` from the [GitHub release](https://github.com/Cindyst1/solaredge-v2/releases/latest) into `/config/custom_components/`. Restart Home Assistant, add **SolarEdge V2**, and follow the steps under **Connect your SolarEdge site**.

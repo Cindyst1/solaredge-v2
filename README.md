@@ -11,14 +11,14 @@ SolarEdge V2 is een community-integratie die de oude SolarEdge-koppeling vervang
 ### Home Assistant 2026.11 en nieuwer: Marketplace
 
 1. Ga als beheerder naar **Instellingen → Marketplace** en bevestig bij het eerste gebruik de melding om installaties toe te staan.
-2. Zoek naar **SolarEdge V2**. Staat de integratie er niet bij? Kies **Toevoegen via link** en voer `https://github.com/Cindyst1/solaredge-v2-test` in. Verbind GitHub als Marketplace daarom vraagt. Kies indien nodig **Integratie** als type.
+2. Zoek naar **SolarEdge V2**. Staat de integratie er niet bij? Kies **Toevoegen via link** en voer `https://github.com/Cindyst1/solaredge-v2` in. Verbind GitHub als Marketplace daarom vraagt. Kies indien nodig **Integratie** als type.
 3. Open **SolarEdge V2**, kies **Installeren** en herstart Home Assistant wanneer daarom wordt gevraagd.
 
 Zie de [Marketplace-handleiding](https://www.home-assistant.io/integrations/marketplace/#custom-repositories).
 
 ### Home Assistant 2026.10 en ouder: HACS
 
-1. Open **HACS → ⋮ → Aangepaste repositories**. Voeg `https://github.com/Cindyst1/solaredge-v2-test` toe als **Integratie**.
+1. Open **HACS → ⋮ → Aangepaste repositories**. Voeg `https://github.com/Cindyst1/solaredge-v2` toe als **Integratie**.
 2. Open **SolarEdge V2**, kies **Downloaden** en herstart Home Assistant.
 
 Zie de [HACS-handleiding](https://www.hacs.xyz/docs/faq/custom_repositories/).
@@ -48,7 +48,7 @@ De integratie vraagt toestemming voor één maand en vernieuwt het toegangstoken
 | **Home Consumption Power Flow**, **Battery Power Flow**, **Battery Flow Direction** | Vereisen energiestromen via Advanced Monitoring. SolarEdge kan toegang tot dit onderdeel afzonderlijk weigeren. |
 | **Meters**, **Inverters**, registratiestatus per apparaat | Schakel apparaatdetectie in en autoriseer ook **DEVICE_DATA**. De inventaris is afhankelijk van wat SolarEdge voor je site teruggeeft. |
 | **Power (15-minute average)** per omvormer | Vereist een omvormer die SolarEdge als actief rapporteert en toegang tot diens vermogensgegevens. Inventaristoegang alleen kan onvoldoende zijn. |
-| **Sensors**, **Gateways**, **Batteries**, **Storage Level** | Deze entiteiten hebben in v0.6.4 nog geen databron. |
+| **Sensors**, **Gateways**, **Batteries**, **Storage Level** | Deze entiteiten hebben nog geen databron. |
 
 Een optionele sensor kan **Onbekend** tonen als de bron ontbreekt of SolarEdge toegang weigert. **Lifetime Energy** en het installatievermogen worden elke 15 minuten opgevraagd, ook met apparaatdetectie. De overige dagtotalen en inventaris worden minder vaak bijgewerkt. De tijd van de laatste cloudmeting kan afwijken van het moment waarop Home Assistant de sensor bijwerkt.
 
@@ -66,6 +66,18 @@ Een optionele sensor kan **Onbekend** tonen als de bron ontbreekt of SolarEdge t
 
 Voor de kaart **Zelf verbruikte zonne-energie** heeft Home Assistant ook een teller voor **teruggeleverde energie in kWh** nodig, bijvoorbeeld van een P1-meter of een andere geschikte netmeter. Voeg die teller in het Energiedashboard toe bij **Elektriciteitsnet → Teruglevering aan het net**. De optie **Lokaal netvermogen** geeft vermogen in W en vervangt deze kWh-teller niet. Voor alleen de weergave van zonneproductie volstaat **Lifetime Energy**.
 
+## Historie van de oude koppeling meenemen
+
+De eerste Lifetime Energy-waarde is een tellerstand. Home Assistant maakt daaruit geen historische dagopbrengsten. Ook het hernoemen van een sensor voegt twee bestaande geschiedenissen niet automatisch samen.
+
+1. Maak een volledige Home Assistant-back-up met de Recorder-database. Noteer de oude en nieuwe entiteit-ID, de laatste geldige oude meting en de eerste geldige V2-meting, inclusief tijdzone en eenheid.
+2. Vergelijk beide tellers met SolarEdge. Bepaal het omschakelmoment en controleer welke tijdvakken al aanwezig zijn. Het verschil tussen twee levensduurtellers is op zichzelf onvoldoende om de opbrengst over afzonderlijke dagen te verdelen.
+3. Voor één doorlopende V2-reeks is een afzonderlijke Recorder-statistiekenmigratie nodig. Die moet oude langetermijnstatistieken tot het omschakelmoment samenvoegen met de V2-statistieken daarna. De cumulatieve statistiek ('sum') moet bij de overgang aansluiten. Een losse kopie van tellerstanden of een dubbele import kan een kunstmatige opbrengst veroorzaken.
+4. Vul eventuele ontbrekende perioden alleen aan met gecontroleerde SolarEdge-opbrengsten voor die perioden. Controleer eenheden, lokale daggrenzen, zomer- en wintertijd en overlap met bestaande gegevens.
+5. Vergelijk dag-, maand- en jaartotalen vóór en na de migratie. Gebruik in het Energiedashboard vervolgens één doorlopende productiebron voor deze zonnepanelen. Bewaar de oorspronkelijke gegevens en de back-up totdat de controle klaar is.
+
+Dit project bevat geen automatische historie-import of algemeen migratiescript. De juiste migratie hangt af van de aanwezige gegevens en je Home Assistant-versie. Een migratie van langetermijnstatistieken voor het Energiedashboard neemt niet vanzelf alle ruwe metingen in de Geschiedenis-weergave mee. Laat bij twijfel de Recorder-migratie begeleiden en werk vanuit een back-up.
+
 ## Handmatig installeren
 
-Kopieer `custom_components/solaredge_v2_test` uit de [GitHub-release](https://github.com/Cindyst1/solaredge-v2-test/releases/latest) naar `/config/custom_components/`. Herstart Home Assistant, voeg **SolarEdge V2** toe en volg de stappen onder **Koppel je SolarEdge-installatie**.
+Kopieer `custom_components/solaredge_v2_test` uit de [GitHub-release](https://github.com/Cindyst1/solaredge-v2/releases/latest) naar `/config/custom_components/`. Herstart Home Assistant, voeg **SolarEdge V2** toe en volg de stappen onder **Koppel je SolarEdge-installatie**.
