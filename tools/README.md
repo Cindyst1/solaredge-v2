@@ -10,7 +10,7 @@ Het script vereist doorlopende oude uurgegevens, een cumulatieve teller zonder r
 
 ### Voorbereiden en controleren
 
-1. Maak een volledige Home Assistant-back-up inclusief Recorder. Voer het hulpmiddel eerst uit tegen een herstelde testkopie. De ontwikkelaar heeft de berekening met synthetische gegevens getest. De live import is nog niet getest op een afzonderlijke Home Assistant-testinstallatie.
+1. Maak een volledige Home Assistant-back-up inclusief Recorder. Voer het hulpmiddel eerst uit tegen een herstelde testkopie. De import is getest tegen een geïsoleerde Home Assistant 2026.11.1 met een eigen Recorder-database en verzonnen gegevens. Daarbij zijn het dag- en jaartotaal van 8 kWh, het behoud van meterstanden, een geweigerd onjuist overgangstotaal en bescherming tegen opnieuw importeren gecontroleerd.
 2. Installeer Python 3.11 of nieuwer en `websocket-client` met `python -m pip install websocket-client`.
 3. Maak een tijdelijk Home Assistant-toegangstoken met beheerdersrechten. Het script vraagt dit afgeschermd, of leest `HA_TOKEN` uit de omgeving. Gebruik HTTPS voor toegang buiten je vertrouwde lokale netwerk.
 4. Bepaal de twee statistiek-ID's, het eerste te importeren uur en het eerste bestaande V2-uur. Geef een expliciete UTC-offset mee. Controleer onafhankelijk, bijvoorbeeld in SolarEdge, de opbrengst binnen dat eerste V2-uur. Een tellerafstand door een langere datakloof kan niet aan één uur worden toegeschreven.
@@ -22,7 +22,7 @@ python tools/migrate_statistics.py --url http://homeassistant.local:8123 --sourc
 
 Controleer de getoonde productie en het overgangsuur. Voor de echte import gebruik je dezelfde opdracht met een **nieuwe** bestandsnaam, plus `--apply --confirmed-bridge-kwh WAARDE`. Vervang `WAARDE` door de onafhankelijk gecontroleerde opbrengst van het eerste V2-uur. Typ daarna `IMPORT` wanneer het script daarom vraagt.
 
-Het script importeert alleen de ontbrekende oude reeks en een baseline-uur. Het behoudt de bestaande V2-sommen en sluit de geïmporteerde sommen daarop aan. Negatieve cumulatieve statistieksommen vóór de V2-start kunnen daarbij correct zijn. Het controleert na import de toegevoegde rijen en vergelijkt alle bestaande bron- en doelrijen met de vooraf gelezen gegevens. Voer tijdens de migratie geen andere statistiekencorrecties of imports uit.
+Het script importeert alleen de ontbrekende oude reeks en een baseline-uur. De geïmporteerde reeks begint met een statistiekbaseline van nul. De bestaande V2-statistieksommen worden met één constante verschoven om oude productie en het overgangsuur mee te nemen. De V2-tellerstanden en de productieverschillen tussen bestaande V2-uren blijven behouden. Deze verschuiving wordt vooraf getoond en in het controlebestand vastgelegd. Het controleert na import de toegevoegde rijen en vergelijkt alle bestaande bron- en doelrijen met de vooraf gelezen gegevens. Voer tijdens de migratie geen andere statistiekencorrecties of imports uit.
 
 Bij een fout na het versturen van de import moet je eerst het resultaat en het controlebestand onderzoeken. De import kan al verwerkt zijn. Een volgende uitvoering stopt zodra eerdere doelstatistieken bestaan. Vergelijk dag-, maand- en jaartotalen met SolarEdge en kies pas na die controle één V2-productiebron in het Energiedashboard. Bewaar de oude bron en back-up. Verwijder het tijdelijke toegangstoken na afloop.
 
@@ -36,7 +36,7 @@ It requires continuous legacy hourly records, a cumulative meter without resets,
 
 ### Preparation and preview
 
-1. Create a full Home Assistant backup including Recorder. Run against a restored test copy first. The calculation has synthetic tests. Live import has not yet been tested against a separate Home Assistant test installation.
+1. Create a full Home Assistant backup including Recorder. Run against a restored test copy first. Live import has been tested against isolated Home Assistant 2026.11.1 and its own Recorder database with synthetic data. Checks cover an 8 kWh daily and yearly total, preserved meter readings, rejection of incorrect bridge production, and repeated-import protection.
 2. Install Python 3.11 or later and `websocket-client` with `python -m pip install websocket-client`.
 3. Create a temporary administrator access token. The script prompts without echo or reads `HA_TOKEN` from the environment. Use HTTPS outside your trusted local network.
 4. Identify the source and target statistic IDs, the first hour to import, and the first existing V2 hour. Include an explicit UTC offset. Independently verify production within that first V2 hour, for example in SolarEdge. A counter difference across a longer data gap cannot be assigned to a single hour.
@@ -44,8 +44,12 @@ It requires continuous legacy hourly records, a cumulative meter without resets,
 
 Check the preview and bridge production. To import, use the same command with a **new** output filename and add `--apply --confirmed-bridge-kwh VALUE`, replacing `VALUE` with independently verified first-hour production. Type `IMPORT` when prompted.
 
-Only the missing legacy prefix and one baseline hour are imported. Existing target sums remain the alignment anchor. Negative cumulative statistics sums before the V2 start can be valid. After import the script checks inserted values and compares all original source and target rows with its initial snapshot. Avoid concurrent statistics corrections or imports.
+Only the missing legacy prefix and one baseline hour are imported. The imported series starts at a zero statistics baseline. Existing V2 statistics sums receive one constant offset to include legacy production and the bridge hour. V2 meter readings and production differences between existing V2 hours are preserved. The offset is shown in the preview and recorded in the audit file. After import the script checks inserted values and compares all original source and target rows with its initial snapshot. Avoid concurrent statistics corrections or imports.
 
 If an error occurs after sending the import, inspect the audit and database before retrying. The import may already have completed. A subsequent run stops when earlier target statistics exist. Verify daily, monthly and yearly production against SolarEdge before selecting one continuous V2 source in the Energy dashboard. Keep the original source and backup, then revoke the temporary token.
 
 **The JSON audit files contain your meter readings and history. Keep them private and never attach them to GitHub or an issue.** This directory contains generic code and synthetic test fixtures only.
+
+## Reproducible integration test
+
+The manual GitHub Actions workflow runs tools/test_live_recorder.py inside the official Home Assistant 2026.11.1 container. Its temporary configuration and database contain synthetic data only and are removed after the test. [Passing run](https://github.com/Cindyst1/solaredge-v2/actions/runs/45081048609).
