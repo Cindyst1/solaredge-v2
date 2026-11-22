@@ -16,6 +16,12 @@ To bring production history from your legacy SolarEdge sensor into V2, use the [
 
 The tool detects the cutover hour from stored statistics, previews the changes and requires confirmation before importing. Missing hours or insufficient bridge evidence stop the migration or require additional verification. It supports a continuous prefix of legacy hourly kWh statistics and checks for overlap and a matching bridge hour. It has been tested against a separate Home Assistant installation with synthetic data. Create a full backup, read the prerequisites, and verify production totals afterwards. It migrates long-term Energy dashboard statistics, not raw History readings.
 
+### First installation without legacy history tested
+
+Installation through the real Marketplace was tested on a separate Home Assistant 2026.11.1 with an empty database. After restarting, first-time configuration completed and Lifetime Energy was selected as an Energy dashboard solar source. The test sensor increased from 100 to 102 kWh. External SolarEdge login and API responses were simulated. [View the passing test](https://github.com/Cindyst1/solaredge-v2/actions/runs/45083064022).
+
+**No history from the legacy SolarEdge integration? Skip migration and install directly.** Home Assistant starts recording new readings from installation onwards. The lifetime counter alone does not reconstruct historical daily readings.
+
 ## 1. Installation
 
 ### Home Assistant 2026.11 and later: Marketplace

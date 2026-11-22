@@ -16,6 +16,12 @@ Wil je de opbrengsthistorie van je oude SolarEdge-sensor meenemen naar V2? Gebru
 
 Het hulpmiddel bepaalt het overgangsuur automatisch uit de opgeslagen statistieken, toont eerst een voorstel en vereist een bevestiging voor de import. Bij ontbrekende uren of onvoldoende bewijs voor de overgang stopt het of vraagt het om extra controle. Het ondersteunt een doorlopende reeks oude kWh-uurstatistieken en controleert op overlap en een passend overgangsuur. Het is getest met een afzonderlijke Home Assistant-installatie en synthetische gegevens. Maak een volledige back-up, lees de voorwaarden en controleer na afloop de opbrengsttotalen. Het hulpmiddel neemt langetermijnstatistieken voor het Energiedashboard over; het kopieert geen ruwe Geschiedenis-metingen.
 
+### Eerste installatie zonder oude historie getest
+
+Installatie via de echte Marketplace is getest op een aparte Home Assistant 2026.11.1 met een lege database. Na de herstart is de eerste configuratie afgerond en Lifetime Energy als zonnebron in het Energiedashboard geselecteerd. De testsensor steeg van 100 naar 102 kWh. De externe SolarEdge-login en API-antwoorden waren gesimuleerd. [Bekijk de geslaagde test](https://github.com/Cindyst1/solaredge-v2/actions/runs/45083064022).
+
+**Heb je geen historie uit de oude SolarEdge-integratie? Dan kun je de migratie overslaan en direct installeren.** Home Assistant gaat vanaf de installatie nieuwe metingen opslaan. De levenslange tellerstand maakt op zichzelf geen historische dagmetingen aan.
+
 ## 1. Installeren
 
 ### Home Assistant 2026.11 en nieuwer: Marketplace
