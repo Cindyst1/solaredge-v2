@@ -8,11 +8,13 @@ SolarEdge V2 is een community-integratie die de oude SolarEdge-koppeling vervang
 
 ## Oude historie overzetten met het aparte migratiehulpmiddel
 
+**Deze stap is optioneel.** Gebruik het migratiehulpmiddel als je de oude SolarEdge-integratie gebruikte en de opgeslagen opbrengsthistorie naar V2 wilt overzetten. Heb je geen oude SolarEdge-historie, of wil je die niet overzetten? Sla deze stap over en ga verder met de gewone V2-installatie.
+
 Wil je de opbrengsthistorie van je oude SolarEdge-sensor meenemen naar V2? Gebruik het [migratiehulpmiddel en de Nederlandse handleiding](https://github.com/Cindyst1/solaredge-v2/blob/main/tools/README.md#nederlands).
 
 **Dit is een los Python-script dat je zelf apart uitvoert.** Installeren of bijwerken via Marketplace of HACS start geen migratie. Het script wordt niet automatisch uitgevoerd door de integratie. Het is beschikbaar op GitHub in de map `tools`.
 
-Het hulpmiddel toont eerst een voorstel en vereist een bevestiging voor de import. Het ondersteunt een doorlopende reeks oude kWh-uurstatistieken en controleert op overlap en een passend overgangsuur. Het is getest met een afzonderlijke Home Assistant-installatie en synthetische gegevens. Maak een volledige back-up, lees de voorwaarden en controleer na afloop de opbrengsttotalen. Het hulpmiddel neemt langetermijnstatistieken voor het Energiedashboard over; het kopieert geen ruwe Geschiedenis-metingen.
+Het hulpmiddel bepaalt het overgangsuur automatisch uit de opgeslagen statistieken, toont eerst een voorstel en vereist een bevestiging voor de import. Bij ontbrekende uren of onvoldoende bewijs voor de overgang stopt het of vraagt het om extra controle. Het ondersteunt een doorlopende reeks oude kWh-uurstatistieken en controleert op overlap en een passend overgangsuur. Het is getest met een afzonderlijke Home Assistant-installatie en synthetische gegevens. Maak een volledige back-up, lees de voorwaarden en controleer na afloop de opbrengsttotalen. Het hulpmiddel neemt langetermijnstatistieken voor het Energiedashboard over; het kopieert geen ruwe Geschiedenis-metingen.
 
 ## 1. Installeren
 

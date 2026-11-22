@@ -8,11 +8,13 @@ SolarEdge V2 is a community integration that replaces the legacy SolarEdge conne
 
 ## Transfer legacy history with the standalone migration tool
 
+**This step is optional.** Use the migration tool if you previously used the legacy SolarEdge integration and want to transfer its stored production history to V2. If you have no legacy SolarEdge history, or do not want to transfer it, skip this step and continue with the normal V2 installation.
+
 To bring production history from your legacy SolarEdge sensor into V2, use the [migration tool and English instructions](https://github.com/Cindyst1/solaredge-v2/blob/main/tools/README.md#english).
 
 **This is a separate Python script that you run manually.** Installing or updating through Marketplace or HACS does not start a migration. The integration does not run the script automatically. Find it in the `tools` directory on GitHub.
 
-The tool previews the changes and requires confirmation before importing. It supports a continuous prefix of legacy hourly kWh statistics and checks for overlap and a matching bridge hour. It has been tested against a separate Home Assistant installation with synthetic data. Create a full backup, read the prerequisites, and verify production totals afterwards. It migrates long-term Energy dashboard statistics, not raw History readings.
+The tool detects the cutover hour from stored statistics, previews the changes and requires confirmation before importing. Missing hours or insufficient bridge evidence stop the migration or require additional verification. It supports a continuous prefix of legacy hourly kWh statistics and checks for overlap and a matching bridge hour. It has been tested against a separate Home Assistant installation with synthetic data. Create a full backup, read the prerequisites, and verify production totals afterwards. It migrates long-term Energy dashboard statistics, not raw History readings.
 
 ## 1. Installation
 

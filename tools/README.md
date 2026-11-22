@@ -4,9 +4,11 @@
 
 ## Nederlands
 
+**Optionele stap voor bestaande gebruikers van de oude SolarEdge-integratie.** Gebruik dit hulpmiddel om die opgeslagen opbrengsthistorie naar V2 over te zetten. Zonder oude historie, of als je die niet wilt overzetten, sla je deze stap over. V2 kan dan direct nieuwe gegevens registreren.
+
 Dit afzonderlijke Python-hulpmiddel importeert een gecontroleerde reeks oude **kWh-uurstatistieken** vóór de eerste V2-statistiek. Het is bedoeld voor Home Assistant 2026.11 en nieuwer. Het wijzigt geen dashboardinstellingen en kopieert geen ruwe Geschiedenis-metingen. Een back-up van de volledige Recorder-database blijft nodig naast het lokale JSON-controlebestand.
 
-Het kiezen van het overgangsuur vereist inzicht in de opgeslagen uurstatistieken. Vraag hulp als je dat uur niet met zekerheid kunt bepalen.
+Het hulpmiddel stelt automatisch het eerste opgeslagen V2-uur als overgangsuur voor. De beschikbare oude reeks begint één uur na de oudste oude statistiek, die als baseline wordt meegenomen. Bij ontbrekende uren of een al gemigreerde V2-reeks stopt het en schrijft het de reden naar het controlebestand.
 
 Het script vereist doorlopende oude uurgegevens, een cumulatieve teller zonder reset en een nieuwe V2-reeks zonder eerdere statistieken. Er moet een oude statistiek aanwezig zijn voor het uur direct vóór het begin van de import en voor het uur direct vóór de eerste V2-statistiek. Bij ontbrekende perioden, verschillende tellers of een reeds uitgevoerde migratie stopt het script. Het hulpmiddel haalt geen ontbrekende opbrengsten bij SolarEdge op.
 
@@ -19,14 +21,14 @@ Open de [repository](https://github.com/Cindyst1/solaredge-v2), kies **Code → 
 1. Maak een volledige Home Assistant-back-up inclusief Recorder. Voer het hulpmiddel eerst uit tegen een herstelde testkopie. De import is getest tegen een geïsoleerde Home Assistant 2026.11.1 met een eigen Recorder-database en verzonnen gegevens. Daarbij zijn het dag- en jaartotaal van 8 kWh, het behoud van meterstanden, een geweigerd onjuist overgangstotaal en bescherming tegen opnieuw importeren gecontroleerd.
 2. Installeer Python 3.11 of nieuwer en `websocket-client` met `python -m pip install websocket-client`.
 3. Open in Home Assistant je gebruikersprofiel, ga naar **Beveiliging** en maak bij **Langlevende toegangstokens** een token aan voor deze migratie. Je account moet beheerder zijn. Gebruik dit token tijdelijk en verwijder het na afloop. Het script vraagt dit afgeschermd, of leest `HA_TOKEN` uit de omgeving. Gebruik HTTPS voor toegang buiten je vertrouwde lokale netwerk.
-4. Zoek de entiteit-ID van de oude Lifetime Energy-sensor en die van V2 onder **Ontwikkelaarstools → Statussen**. Voor deze sensoren zijn dat ook de statistiek-ID's. Bepaal vervolgens het eerste te importeren uur en het eerste bestaande V2-uur. Geef een expliciete UTC-offset mee. Controleer onafhankelijk, bijvoorbeeld in SolarEdge, de opbrengst binnen dat eerste V2-uur. Een tellerafstand door een langere datakloof kan niet aan één uur worden toegeschreven.
-5. Start een voorvertoning met je eigen waarden. De onderstaande namen en datums zijn voorbeelden.
+4. Zoek de entiteit-ID van de oude Lifetime Energy-sensor en die van V2 onder **Instellingen → Apparaten en diensten → Entiteiten**. Voor deze sensoren zijn dat ook de statistiek-ID's. Het script bepaalt de uren en toont het voorstel in UTC. Controleer de voorgestelde periode voordat je importeert.
+5. Start een voorvertoning met je eigen waarden. De onderstaande namen zijn voorbeelden.
 
 ```sh
-python tools/migrate_statistics.py --url http://homeassistant.local:8123 --source sensor.legacy_lifetime_energy --target sensor.solaredge_v2_test_lifetime_energy --start 2026-01-01T00:00:00+01:00 --cutover 2026-02-01T00:00:00+01:00 --output preview-private.json
+python tools/migrate_statistics.py --url http://homeassistant.local:8123 --source sensor.legacy_lifetime_energy --target sensor.solaredge_v2_test_lifetime_energy --output preview-private.json
 ```
 
-Controleer de getoonde productie en het overgangsuur. Voor de echte import gebruik je dezelfde opdracht met een **nieuwe** bestandsnaam, plus `--apply --confirmed-bridge-kwh WAARDE`. Vervang `WAARDE` door de onafhankelijk gecontroleerde opbrengst van het eerste V2-uur. Typ daarna `IMPORT` wanneer het script daarom vraagt.
+Controleer de voorgestelde uren en productie. Voor import gebruik je dezelfde opdracht met een **nieuwe** bestandsnaam en `--apply`. Typ `IMPORT` wanneer het script daarom vraagt. Als de oude statistiek in het eerste V2-uur dezelfde tellerstand toont en de uurproductie bevestigt, wordt de overgang automatisch gecontroleerd. Anders vraagt het hulpmiddel om een onafhankelijk gecontroleerde opbrengst via `--confirmed-bridge-kwh WAARDE`. Bij een langere datakloof kan het hulpmiddel de ontbrekende opbrengst niet zelf over dagen verdelen. De opties `--start` en `--cutover` blijven beschikbaar voor expliciete controle.
 
 Het script importeert alleen de ontbrekende oude reeks en een baseline-uur. De geïmporteerde reeks begint met een statistiekbaseline van nul. De bestaande V2-statistieksommen worden met één constante verschoven om oude productie en het overgangsuur mee te nemen. De V2-tellerstanden en de productieverschillen tussen bestaande V2-uren blijven behouden. Deze verschuiving wordt vooraf getoond en in het controlebestand vastgelegd. Het controleert na import de toegevoegde rijen en vergelijkt alle bestaande bron- en doelrijen met de vooraf gelezen gegevens. Voer tijdens de migratie geen andere statistiekencorrecties of imports uit.
 
@@ -36,9 +38,11 @@ Bij een fout na het versturen van de import moet je eerst het resultaat en het c
 
 ## English
 
+**Optional step for existing users of the legacy SolarEdge integration.** Use this tool to transfer its stored production history to V2. If you have no legacy history, or do not want to transfer it, skip this step. V2 can start recording new data directly.
+
 This standalone Python tool imports a checked prefix of legacy **hourly kWh statistics** before the first V2 statistics row. It targets Home Assistant 2026.11 and later. It does not configure dashboards or copy raw History readings. Create a full Recorder database backup in addition to the local JSON audit file.
 
-Choosing the cutover hour requires understanding the stored hourly statistics. Ask for assistance if you cannot establish that hour reliably.
+The tool proposes the first stored V2 hour as the cutover automatically. The legacy import begins one hour after the oldest legacy statistic, which serves as the baseline. Missing hours or an already migrated target stop the proposal and record a reason in the audit file.
 
 It requires continuous legacy hourly records, a cumulative meter without resets, and a V2 series without earlier statistics. A legacy baseline must exist for the hour before the import start and the hour before the first V2 statistics row. Gaps, incompatible counters or a previous migration cause the tool to stop. The tool does not fetch missing production from SolarEdge.
 
@@ -51,14 +55,14 @@ Open the [repository](https://github.com/Cindyst1/solaredge-v2), select **Code �
 1. Create a full Home Assistant backup including Recorder. Run against a restored test copy first. Live import has been tested against isolated Home Assistant 2026.11.1 and its own Recorder database with synthetic data. Checks cover an 8 kWh daily and yearly total, preserved meter readings, rejection of incorrect bridge production, and repeated-import protection.
 2. Install Python 3.11 or later and `websocket-client` with `python -m pip install websocket-client`.
 3. In Home Assistant, open your user profile, go to **Security**, and create a **Long-lived access token** for this migration. Use an administrator account. Use the token temporarily and revoke it afterwards. The script prompts without echo or reads `HA_TOKEN` from the environment. Use HTTPS outside your trusted local network.
-4. Find the legacy and V2 Lifetime Energy entity IDs under **Developer tools → States**. For these sensors the entity IDs are also the statistic IDs. Then identify the first hour to import, and the first existing V2 hour. Include an explicit UTC offset. Independently verify production within that first V2 hour, for example in SolarEdge. A counter difference across a longer data gap cannot be assigned to a single hour.
-5. Run this preview command with your own values. The example IDs and dates are placeholders.
+4. Find the legacy and V2 Lifetime Energy entity IDs under **Settings → Devices & services → Entities**. For these sensors they are also the statistic IDs. The tool detects the hours and displays its proposal in UTC. Review the proposed period before importing.
+5. Run this preview command with your own values. The example IDs are placeholders.
 
 ```sh
-python tools/migrate_statistics.py --url http://homeassistant.local:8123 --source sensor.legacy_lifetime_energy --target sensor.solaredge_v2_test_lifetime_energy --start 2026-01-01T00:00:00+01:00 --cutover 2026-02-01T00:00:00+01:00 --output preview-private.json
+python tools/migrate_statistics.py --url http://homeassistant.local:8123 --source sensor.legacy_lifetime_energy --target sensor.solaredge_v2_test_lifetime_energy --output preview-private.json
 ```
 
-Check the preview and bridge production. To import, use the same command with a **new** output filename and add `--apply --confirmed-bridge-kwh VALUE`, replacing `VALUE` with independently verified first-hour production. Type `IMPORT` when prompted.
+Review the proposed hours and production. To import, repeat the command with a **new** output filename and `--apply`. Type `IMPORT` when prompted. The bridge is verified automatically if the legacy statistic at the first V2 hour matches its counter and confirms the hourly production. Otherwise supply independently verified production with `--confirmed-bridge-kwh VALUE`. The tool cannot allocate missing production across a longer gap automatically. Optional `--start` and `--cutover` arguments remain available for explicit control.
 
 Only the missing legacy prefix and one baseline hour are imported. The imported series starts at a zero statistics baseline. Existing V2 statistics sums receive one constant offset to include legacy production and the bridge hour. V2 meter readings and production differences between existing V2 hours are preserved. The offset is shown in the preview and recorded in the audit file. After import the script checks inserted values and compares all original source and target rows with its initial snapshot. Avoid concurrent statistics corrections or imports.
 
@@ -68,4 +72,4 @@ If an error occurs after sending the import, inspect the audit and database befo
 
 ## Reproducible integration test
 
-The manual GitHub Actions workflow runs tools/test_live_recorder.py inside the official Home Assistant 2026.11.1 container. Its temporary configuration and database contain synthetic data only and are removed after the test. [Passing run](https://github.com/Cindyst1/solaredge-v2/actions/runs/45081048609).
+The manual GitHub Actions workflow runs tools/test_live_recorder.py inside the official Home Assistant 2026.11.1 container. Its temporary configuration and database contain synthetic data only and are removed after the test. [Passing run](https://github.com/Cindyst1/solaredge-v2/actions/runs/45082294778).
