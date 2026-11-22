@@ -11,7 +11,8 @@ import tempfile
 from homeassistant.core import HomeAssistant
 from homeassistant.setup import async_setup_component
 from homeassistant.loader import async_setup as setup_loader
-from homeassistant.components.recorder import get_instance, async_initialize_recorder
+from homeassistant.components.recorder import get_instance
+from homeassistant.helpers.recorder import async_initialize_recorder
 
 
 async def main():
