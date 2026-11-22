@@ -69,11 +69,13 @@ async def main():
 
             assert await run("preview") == 0
             assert await snapshot() == before, "Preview wrote statistics"
+            assert await run("wrong-bridge", "--apply", "--confirmed-bridge-kwh", "99") != 0
+            assert await snapshot() == before, "Rejected bridge wrote statistics"
             assert await run("apply", "--apply", "--confirmed-bridge-kwh", "1") == 0
             after = await snapshot()
             assert after[source] == before[source], "Legacy rows changed"
-            assert after[target][-2:] == before[target], "Existing V2 rows changed"
-            assert [row["sum"] for row in after[target]] == [-6, -4, -1, 0, 2]
+            assert [row["state"] for row in after[target][-2:]] == [row["state"] for row in before[target]], "V2 readings changed"
+            assert [row["sum"] for row in after[target]] == [0, 2, 5, 6, 8]
             assert [after[target][i]["sum"] - after[target][i-1]["sum"] for i in range(1, 5)] == [2, 3, 1, 2]
             assert after[target][-1]["sum"] - after[target][0]["sum"] == 8, "Double-counted production"
             daily = await call("recorder/statistics_during_period", start_time="2025-01-01T01:00:00+00:00",
@@ -81,6 +83,10 @@ async def main():
                                period="day", types=["change"])
             print("Energy dashboard daily statistics:", daily)
             assert sum(row["change"] for row in daily[target]) == 8, "Energy dashboard total differs"
+            yearly = await call("recorder/statistics_during_period", start_time="2025-01-01T00:00:00+00:00",
+                                end_time="2025-01-02T00:00:00+00:00", statistic_ids=[target],
+                                period="year", types=["change"])
+            assert sum(row["change"] for row in yearly[target]) == 8, "Year total differs"
             assert await run("repeat", "--apply", "--confirmed-bridge-kwh", "1") != 0
             assert await snapshot() == after, "Repeated import changed statistics"
             await asyncio.to_thread(connection.socket.close)

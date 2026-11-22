@@ -14,7 +14,7 @@ HOUR_MS = 3_600_000
 
 
 def make_plan(source, target, start_ms, cutover_ms):
-    """Keep the target sums fixed and align the imported prefix to its first row."""
+    """Start the imported baseline at zero and carry its production into V2 sums."""
     source = sorted(source, key=lambda row: row["start"])
     target = sorted(target, key=lambda row: row["start"])
     prefix = [row for row in source if start_ms <= row["start"] < cutover_ms]
@@ -39,13 +39,14 @@ def make_plan(source, target, start_ms, cutover_ms):
     bridge = first["state"] - rows[-1]["state"]
     if bridge < 0:
         raise ValueError("The target meter is lower than the legacy meter. Verify units and counters.")
-    offset = first["sum"] - bridge - rows[-1]["sum"]
+    offset = -rows[0]["sum"]
+    target_adjustment = rows[-1]["sum"] + offset + bridge - first["sum"]
     imported = [
         {"start": datetime.fromtimestamp(row["start"] / 1000, timezone.utc).isoformat(),
          "state": row["state"], "sum": row["sum"] + offset}
         for row in rows
     ]
-    return {"bridge_kwh": bridge, "offset": offset, "stats": imported,
+    return {"bridge_kwh": bridge, "offset": offset, "target_sum_adjustment": target_adjustment, "stats": imported,
             "legacy_production_kwh": rows[-1]["sum"] - rows[0]["sum"]}
 
 
@@ -129,6 +130,7 @@ def main():
             print(f"Prefix rows (including baseline): {len(plan['stats'])}")
             print(f"Legacy production: {plan['legacy_production_kwh']:.6f} kWh")
             print(f"First V2 hour bridge: {plan['bridge_kwh']:.6f} kWh")
+            print(f"V2 statistics sum offset (meter readings stay fixed): {plan['target_sum_adjustment']:.6f} kWh")
             print(f"Private local audit file: {args.output}")
             if not args.apply:
                 print("Preview complete. No statistics imported.")
@@ -147,6 +149,18 @@ def main():
                 if old_boundary != new_boundary:
                     raise ValueError("Historical statistics changed during preview. Stop and review a fresh preview.")
             item = by_id[args.target]
+            adjustment = plan["target_sum_adjustment"]
+            if abs(adjustment) > 0.000001:
+                connection.call("recorder/adjust_sum_statistics", statistic_id=args.target,
+                                start_time=args.cutover.isoformat(), adjustment=adjustment,
+                                adjustment_unit_of_measurement="kWh")
+                for attempt in range(30):
+                    shifted = connection.statistics([args.target], args.cutover.isoformat())[args.target]
+                    if abs(shifted[0]["sum"] - target[0]["sum"] - adjustment) < 0.000001:
+                        break
+                    time.sleep(2)
+                else:
+                    raise RuntimeError("Target sum adjustment pending. Inspect audit before retrying.")
             import_metadata = {"statistic_id": args.target, "source": item["source"],
                                "name": item.get("name"), "unit_of_measurement": "kWh",
                                "unit_class": item.get("unit_class"), "mean_type": 0, "has_sum": True}
@@ -169,9 +183,13 @@ def main():
             for entity in entities:
                 after = {row["start"]: row for row in verified[entity]}
                 for row in original[entity]:
-                    if after.get(row["start"]) != row:
+                    expected_row = dict(row)
+                    if entity == args.target:
+                        expected_row["sum"] += adjustment
+                    actual = after.get(row["start"])
+                    if actual is None or actual["state"] != expected_row["state"] or abs(actual["sum"] - expected_row["sum"]) > 0.000001:
                         raise RuntimeError("An original row changed. Inspect the audit; do not repeat the import.")
-            print("Import verified. Original source and existing target statistics match the audit.")
+            print("Import verified. Source rows and target readings preserved; target sums include the planned offset.")
         finally:
             connection.socket.close()
 

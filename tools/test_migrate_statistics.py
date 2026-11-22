@@ -17,9 +17,9 @@ class MigrationPlanTests(unittest.TestCase):
     def test_bridge_preserves_production_without_changing_target(self):
         plan = make_plan(self.source, self.target, HOUR_MS, 3 * HOUR_MS)
         sums = [item["sum"] for item in plan["stats"]]
-        self.assertEqual(sums, [-6, -4, -1])
+        self.assertEqual(sums, [0, 2, 5])
         self.assertEqual(plan["legacy_production_kwh"], 5)
-        self.assertEqual(self.target[0]["sum"] - sums[-1], 1)
+        self.assertEqual(self.target[0]["sum"] + plan["target_sum_adjustment"] - sums[-1], 1)
         self.assertEqual(self.target[-1], row(4, 108, 2))
 
     def test_existing_prefix_aborts_including_second_run(self):
