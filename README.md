@@ -6,6 +6,14 @@ SolarEdge V2 is een community-integratie die de oude SolarEdge-koppeling vervang
 
 **Bevestigd in Home Assistant: Lifetime Energy.** Deze cumulatieve kWh-teller werkt met SITE_DATA als zonneproductiebron in het Energiedashboard. Dag-, maand- en jaaropbrengst en kwartiervermogen hangen af van de beschikbare cloudgegevens. Zie de sensortabel voor extra machtigingen en lokale bronnen.
 
+## Oude historie overzetten met het aparte migratiehulpmiddel
+
+Wil je de opbrengsthistorie van je oude SolarEdge-sensor meenemen naar V2? Gebruik het [migratiehulpmiddel en de Nederlandse handleiding](https://github.com/Cindyst1/solaredge-v2/blob/main/tools/README.md#nederlands).
+
+**Dit is een los Python-script dat je zelf apart uitvoert.** Installeren of bijwerken via Marketplace of HACS start geen migratie. Het script wordt niet automatisch uitgevoerd door de integratie. Het is beschikbaar op GitHub in de map `tools`.
+
+Het hulpmiddel toont eerst een voorstel en vereist een bevestiging voor de import. Het ondersteunt een doorlopende reeks oude kWh-uurstatistieken en controleert op overlap en een passend overgangsuur. Het is getest met een afzonderlijke Home Assistant-installatie en synthetische gegevens. Maak een volledige back-up, lees de voorwaarden en controleer na afloop de opbrengsttotalen. Het hulpmiddel neemt langetermijnstatistieken voor het Energiedashboard over; het kopieert geen ruwe Geschiedenis-metingen.
+
 ## 1. Installeren
 
 ### Home Assistant 2026.11 en nieuwer: Marketplace
@@ -68,7 +76,7 @@ Voor de kaart **Zelf verbruikte zonne-energie** heeft Home Assistant ook een tel
 
 ## Historie van de oude koppeling meenemen
 
-Voor een doorlopende oude reeks is een afzonderlijk [migratiehulpmiddel met voorvertoning](tools/README.md#nederlands) beschikbaar. Lees eerst de voorwaarden en test op een herstelde kopie. Dit is een los Python-script dat je handmatig uitvoert.
+Voor een doorlopende oude reeks is een afzonderlijk [migratiehulpmiddel met voorvertoning](https://github.com/Cindyst1/solaredge-v2/blob/main/tools/README.md#nederlands) beschikbaar. Lees eerst de voorwaarden en test op een herstelde kopie. Dit is een los Python-script dat je handmatig uitvoert.
 
 De eerste Lifetime Energy-waarde is een tellerstand. Home Assistant maakt daaruit geen historische dagopbrengsten. Ook het hernoemen van een sensor voegt twee bestaande geschiedenissen niet automatisch samen.
 

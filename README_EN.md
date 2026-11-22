@@ -6,6 +6,14 @@ SolarEdge V2 is a community integration that replaces the legacy SolarEdge conne
 
 **Verified in Home Assistant: Lifetime Energy.** This cumulative kWh counter uses SITE_DATA and works as a solar production source in the Energy dashboard. Daily, monthly and yearly production and quarter-hour power depend on the available cloud data. See the sensor table for additional permissions and local sources.
 
+## Transfer legacy history with the standalone migration tool
+
+To bring production history from your legacy SolarEdge sensor into V2, use the [migration tool and English instructions](https://github.com/Cindyst1/solaredge-v2/blob/main/tools/README.md#english).
+
+**This is a separate Python script that you run manually.** Installing or updating through Marketplace or HACS does not start a migration. The integration does not run the script automatically. Find it in the `tools` directory on GitHub.
+
+The tool previews the changes and requires confirmation before importing. It supports a continuous prefix of legacy hourly kWh statistics and checks for overlap and a matching bridge hour. It has been tested against a separate Home Assistant installation with synthetic data. Create a full backup, read the prerequisites, and verify production totals afterwards. It migrates long-term Energy dashboard statistics, not raw History readings.
+
 ## 1. Installation
 
 ### Home Assistant 2026.11 and later: Marketplace
@@ -68,7 +76,7 @@ The **Self-consumed solar energy** card also needs a **grid export energy counte
 
 ## Bringing over history from the legacy integration
 
-A standalone [migration tool with preview](tools/README.md#english) is available for a continuous legacy series. Read the prerequisites and test against a restored copy first. This is a separate Python script to run manually.
+A standalone [migration tool with preview](https://github.com/Cindyst1/solaredge-v2/blob/main/tools/README.md#english) is available for a continuous legacy series. Read the prerequisites and test against a restored copy first. This is a separate Python script to run manually.
 
 The first Lifetime Energy value is a meter reading. Home Assistant does not reconstruct historical daily production from it. Renaming an entity does not automatically merge two existing histories either.
 
