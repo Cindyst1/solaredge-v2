@@ -1,6 +1,8 @@
 name: Migration Recorder integration test
 on:
   workflow_dispatch:
+  push:
+    branches: [codex/test-recorder-migration]
 permissions:
   contents: read
 jobs:
