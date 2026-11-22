@@ -76,6 +76,11 @@ async def main():
             assert [row["sum"] for row in after[target]] == [-6, -4, -1, 0, 2]
             assert [after[target][i]["sum"] - after[target][i-1]["sum"] for i in range(1, 5)] == [2, 3, 1, 2]
             assert after[target][-1]["sum"] - after[target][0]["sum"] == 8, "Double-counted production"
+            daily = await call("recorder/statistics_during_period", start_time="2025-01-01T01:00:00+00:00",
+                               end_time="2025-01-01T05:00:00+00:00", statistic_ids=[target],
+                               period="day", types=["change"])
+            print("Energy dashboard daily statistics:", daily)
+            assert sum(row["change"] for row in daily[target]) == 8, "Energy dashboard total differs"
             assert await run("repeat", "--apply", "--confirmed-bridge-kwh", "1") != 0
             assert await snapshot() == after, "Repeated import changed statistics"
             await asyncio.to_thread(connection.socket.close)
