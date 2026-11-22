@@ -73,3 +73,9 @@ If an error occurs after sending the import, inspect the audit and database befo
 ## Reproducible integration test
 
 The manual GitHub Actions workflow runs tools/test_live_recorder.py inside the official Home Assistant 2026.11.1 container. Its temporary configuration and database contain synthetic data only and are removed after the test. [Passing run](https://github.com/Cindyst1/solaredge-v2/actions/runs/45082294778).
+
+## First installation without legacy history / Eerste installatie zonder oude historie
+
+Een aparte Home Assistant 2026.11.1-test met een lege database downloadt release 0.6.8 via de echte Marketplace, herstart de testomgeving en doorloopt de eerste configuratie zonder migratiestap. De test controleert Lifetime Energy van 100 naar 102 kWh en selectie als zonnebron in het Energiedashboard. Alleen de externe SolarEdge-login en API-antwoorden zijn gesimuleerd. De persoonlijke installatie wordt niet gebruikt. [Geslaagde test](https://github.com/Cindyst1/solaredge-v2/actions/runs/45083064022).
+
+A separate Home Assistant 2026.11.1 test with an empty database downloads release 0.6.8 through the real Marketplace, restarts the test environment, and completes first-time configuration without migration. It checks Lifetime Energy from 100 to 102 kWh and selection as an Energy dashboard solar source. Only the external SolarEdge login and API responses are simulated. No personal installation is used. [Passing test](https://github.com/Cindyst1/solaredge-v2/actions/runs/45083064022).
