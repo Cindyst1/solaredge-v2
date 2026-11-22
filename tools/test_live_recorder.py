@@ -8,23 +8,19 @@ from pathlib import Path
 import sys
 import tempfile
 
-from homeassistant.core import HomeAssistant
-from homeassistant.setup import async_setup_component
-from homeassistant.loader import async_setup as setup_loader
+from homeassistant.bootstrap import async_setup_hass
+from homeassistant.runner import RuntimeConfig
 from homeassistant.components.recorder import get_instance
-from homeassistant.helpers.recorder import async_initialize_recorder
 
 
 async def main():
     with tempfile.TemporaryDirectory() as directory:
-        hass = HomeAssistant(directory)
-        setup_loader(hass)
-        async_initialize_recorder(hass)
-        config = {"http": {"server_host": "127.0.0.1", "server_port": 18123},
-                  "recorder": {"db_url": f"sqlite:///{directory}/test.db"}}
+        Path(directory, "configuration.yaml").write_text(
+            "http:\n  server_host: 127.0.0.1\n  server_port: 18123\n"
+            "recorder:\nwebsocket_api:\nconfig:\n", encoding="utf-8")
+        hass = await async_setup_hass(RuntimeConfig(config_dir=directory, skip_pip=True))
+        assert hass is not None, "Home Assistant bootstrap failed"
         try:
-            for component in ("recorder", "http", "websocket_api", "config"):
-                assert await async_setup_component(hass, component, config), component
             await hass.async_start()
             user = await hass.auth.async_create_user("Synthetic test admin", group_ids=["system-admin"])
             refresh = await hass.auth.async_create_refresh_token(user)
