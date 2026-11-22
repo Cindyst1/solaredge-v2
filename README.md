@@ -68,6 +68,8 @@ Voor de kaart **Zelf verbruikte zonne-energie** heeft Home Assistant ook een tel
 
 ## Historie van de oude koppeling meenemen
 
+Voor een doorlopende oude reeks is een afzonderlijk [migratiehulpmiddel met voorvertoning](tools/README.md#nederlands) beschikbaar. Lees eerst de voorwaarden en test op een herstelde kopie. Dit is een los Python-script dat je handmatig uitvoert.
+
 De eerste Lifetime Energy-waarde is een tellerstand. Home Assistant maakt daaruit geen historische dagopbrengsten. Ook het hernoemen van een sensor voegt twee bestaande geschiedenissen niet automatisch samen.
 
 1. Maak een volledige Home Assistant-back-up met de Recorder-database. Noteer de oude en nieuwe entiteit-ID, de laatste geldige oude meting en de eerste geldige V2-meting, inclusief tijdzone en eenheid.
@@ -76,7 +78,7 @@ De eerste Lifetime Energy-waarde is een tellerstand. Home Assistant maakt daarui
 4. Vul eventuele ontbrekende perioden alleen aan met gecontroleerde SolarEdge-opbrengsten voor die perioden. Controleer eenheden, lokale daggrenzen, zomer- en wintertijd en overlap met bestaande gegevens.
 5. Vergelijk dag-, maand- en jaartotalen vóór en na de migratie. Gebruik in het Energiedashboard vervolgens één doorlopende productiebron voor deze zonnepanelen. Bewaar de oorspronkelijke gegevens en de back-up totdat de controle klaar is.
 
-Dit project bevat geen automatische historie-import of algemeen migratiescript. De juiste migratie hangt af van de aanwezige gegevens en je Home Assistant-versie. Een migratie van langetermijnstatistieken voor het Energiedashboard neemt niet vanzelf alle ruwe metingen in de Geschiedenis-weergave mee. Laat bij twijfel de Recorder-migratie begeleiden en werk vanuit een back-up.
+De integratie importeert geen historie automatisch. Het afzonderlijke hulpmiddel ondersteunt alleen de hierboven beschreven aaneengesloten reeks. De juiste migratie hangt af van de aanwezige gegevens en je Home Assistant-versie. Een migratie van langetermijnstatistieken voor het Energiedashboard neemt niet vanzelf alle ruwe metingen in de Geschiedenis-weergave mee. Laat bij twijfel de Recorder-migratie begeleiden en werk vanuit een back-up.
 
 ## Handmatig installeren
 

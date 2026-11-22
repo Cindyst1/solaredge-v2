@@ -68,6 +68,8 @@ The **Self-consumed solar energy** card also needs a **grid export energy counte
 
 ## Bringing over history from the legacy integration
 
+A standalone [migration tool with preview](tools/README.md#english) is available for a continuous legacy series. Read the prerequisites and test against a restored copy first. This is a separate Python script to run manually.
+
 The first Lifetime Energy value is a meter reading. Home Assistant does not reconstruct historical daily production from it. Renaming an entity does not automatically merge two existing histories either.
 
 1. Create a full Home Assistant backup including the Recorder database. Record the old and new entity IDs, the last valid legacy reading and the first valid V2 reading, including timezone and units.
@@ -76,7 +78,7 @@ The first Lifetime Energy value is a meter reading. Home Assistant does not reco
 4. Fill missing intervals only with verified SolarEdge production for those intervals. Check units, local day boundaries, daylight saving time and overlap with existing records.
 5. Compare daily, monthly and yearly totals before and after migration. Then use one continuous production source for these panels in the Energy dashboard. Keep the original data and backup until verification is complete.
 
-This project includes no automatic history importer or general migration script. The appropriate migration depends on the existing data and Home Assistant version. Migrating long-term Energy dashboard statistics does not automatically move every raw reading in the History view. Seek assistance with the Recorder migration when needed and work from a backup.
+The integration does not import history automatically. The standalone tool supports only the continuous prefix described above. The appropriate migration depends on the existing data and Home Assistant version. Migrating long-term Energy dashboard statistics does not automatically move every raw reading in the History view. Seek assistance with the Recorder migration when needed and work from a backup.
 
 ## Install manually
 

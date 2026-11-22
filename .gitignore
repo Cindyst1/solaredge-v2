@@ -2,3 +2,7 @@
 .env.*
 __pycache__/
 *.py[cod]
+
+# Local migration audit files contain private readings.
+/*-private.json
+/tools/*.json
