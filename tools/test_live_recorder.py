@@ -67,7 +67,10 @@ async def main():
                 return process.returncode
 
             assert await run("preview") == 0
-            assert await snapshot() == before, "Preview wrote statistics"
+            after_preview = await snapshot()
+            if after_preview != before:
+                print("Before preview:", before, "After preview:", after_preview)
+            assert after_preview == before, "Preview wrote statistics"
             assert await run("wrong-bridge", "--apply", "--confirmed-bridge-kwh", "99") != 0
             assert await snapshot() == before, "Rejected bridge wrote statistics"
             assert await run("apply", "--apply") == 0
