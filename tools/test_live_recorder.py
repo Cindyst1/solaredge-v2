@@ -45,6 +45,14 @@ async def main():
                            "source": "recorder", "name": entity, "unit_of_measurement": "kWh",
                            "unit_class": "energy", "mean_type": 0, "has_sum": True}, stats=stats(values))
                 await get_instance(hass).async_block_till_done()
+                for attempt in range(50):
+                    stored = await call("recorder/statistics_during_period", start_time="2025-01-01T00:00:00+00:00",
+                                        statistic_ids=[entity], period="hour", types=["state", "sum"])
+                    if len(stored.get(entity, [])) == len(values):
+                        break
+                    await asyncio.sleep(0.1)
+                else:
+                    raise AssertionError("Synthetic seed import did not finish")
 
             await seed(source, [(0, 100, 10), (1, 102, 12), (2, 105, 15), (3, 106, 16)])
             await seed(target, [(3, 106, 0), (4, 108, 2)])
