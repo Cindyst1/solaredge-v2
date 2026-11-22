@@ -80,7 +80,7 @@ class Connection:
 
     def statistics(self, entities, start):
         return self.call("recorder/statistics_during_period", statistic_ids=entities,
-                         start_time=start, period="hour", types=["sum", "state"])
+                         start_time=start, period="hour", types=["sum", "state"], units={"energy": "kWh"})
 
 
 def hour(value):
@@ -116,7 +116,7 @@ def main():
             by_id = {item["statistic_id"]: item for item in metadata}
             for entity in entities:
                 item = by_id.get(entity, {})
-                if item.get("unit_of_measurement") != "kWh" or not item.get("has_sum"):
+                if item.get("statistics_unit_of_measurement") != "kWh" or not item.get("has_sum"):
                     raise ValueError("Both statistics must exist, use kWh and have a cumulative sum.")
             original = connection.statistics(entities, start)
             target = original.get(args.target, [])
