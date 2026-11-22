@@ -1,0 +1,21 @@
+name: Marketplace first installation test
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/test-marketplace-first-install]
+permissions:
+  contents: read
+jobs:
+  fresh-install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install and configure without legacy history
+        env:
+          CI_GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          docker run --rm --entrypoint /bin/sh \
+            -e CI_GITHUB_TOKEN -v "$PWD:/work:ro" -w /work/tools \
+            ghcr.io/home-assistant/home-assistant:2026.11.1 \
+            -c 'pip install --quiet websocket-client && python test_fresh_marketplace.py'
